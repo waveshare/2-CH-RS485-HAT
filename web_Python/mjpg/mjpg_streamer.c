@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
         };
 
         c = getopt_long_only(argc, argv, "", long_options, &option_index);
-
+        
         /* no more options to parse */
         if(c == -1) break;
 
@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
             return 0;
         }
     }
-
+    
     openlog("MJPG-streamer ", LOG_PID | LOG_CONS, LOG_USER);
     //openlog("MJPG-streamer ", LOG_PID|LOG_CONS|LOG_PERROR, LOG_USER);
     syslog(LOG_INFO, "starting application");
@@ -284,7 +284,7 @@ int main(int argc, char *argv[])
         closelog();
         exit(EXIT_FAILURE);
     }
-
+    
     /*
      * messages like the following will only be visible on your terminal
      * if not running in daemon mode
@@ -300,7 +300,6 @@ int main(int argc, char *argv[])
         /* no? Then use the default plugin instead */
         global.outcnt = 1;
     }
-
     /* open input plugin */
     for(i = 0; i < global.incnt; i++) {
         /* this mutex and the conditional variable are used to synchronize access to the global picture buffer */
@@ -333,6 +332,7 @@ int main(int argc, char *argv[])
         if(global.in[i].init == NULL) {
             LOG("%s\n", dlerror());
             exit(EXIT_FAILURE);
+            
         }
         global.in[i].stop = dlsym(global.in[i].handle, "input_stop");
         if(global.in[i].stop == NULL) {
@@ -358,7 +358,6 @@ int main(int argc, char *argv[])
             exit(0);
         }
     }
-
     /* open output plugin */
     for(i = 0; i < global.outcnt; i++) {
         tmp = (size_t)(strchr(output[i], ' ') - output[i]);

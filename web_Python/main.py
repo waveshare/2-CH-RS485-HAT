@@ -1,3 +1,11 @@
+#Version 2.0
+#Modified: 
+#1. No need to manually modify the directory
+#2. The servo button click is changed to continuous
+#3. IP does not need to modify automatic acquisition
+
+
+
 # -*- coding: UTF-8 -*- 
 import threading
 import SocketServer 
@@ -7,24 +15,53 @@ from SocketServer import StreamRequestHandler as SRH
 from time import ctime  
 import time 
 
+import signal
+
+import threading
 import thread
 import os
 import sys
 
-o_path = os.getcwd()
-sys.path.append(o_path)
-os.chdir('/home/pi/RaspberryPi/web_Python/mjpg')
+import socket
+
+Road = os.getcwd()
+Road = Road + "/mjpg"
+print Road
+
+
+os.chdir(Road)
 from mjpg import camera
 
 pwm = PCA9685()
 pwm.setPWMFreq(50)
-pwm.setRotationAngle(0, 0)
-pwm.setRotationAngle(1, 0)
+pwm.setRotationAngle(0, 20)
+pwm.setRotationAngle(1, 20)
 
-host = '192.168.1.135'  
+
+def get_host_ip():#get IP 
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+    finally:
+        s.close()
+    return ip
+
+print ("IP = "),
+print get_host_ip()
+print ("\r\n")
+
+host = get_host_ip() 
 port = 8000
 addr = (host,port) 
-     
+
+
+VPulse = 20 
+HPulse = 20
+HStep = 0
+VStep = 0
+
+   
 class Servers(SRH): 
     def handle(self): 
         global HStep,VStep,VPulse,HPulse
@@ -42,23 +79,19 @@ class Servers(SRH):
             if data == "Stop":
                 HStep = 0
                 VStep = 0
-                print("Stop")
-            elif data == "Forward":
-                print("Forward")
-            elif data == "Backward":
-                print("Backward")
-            elif data == "TurnLeft":
-                print("TurnLeft")
-            elif data == "TurnRight":
-                print("TurnRight")
+                #print("Stop")
             elif data == "Up":
-                VStep = -1
+                VStep = -3
+                print("Up")
             elif data == "Down":
-                VStep = 1
+                VStep = 3
+                print("Down")
             elif data == "Left":
-                HStep = 1
+                HStep = 3
+                print("Left")
             elif data == "Right":
-                HStep = -1
+                HStep = -3
+                print("Right")
             else:
                 value = 0
                 try:
@@ -66,35 +99,24 @@ class Servers(SRH):
                     if(value >= 0 and value <= 100):
                         print(value)
                 except:
-                    print("Command error")
-            print data   
-            #print "recv from ", self.client_address[0]  
+                    pass
             self.request.send(data) 
             
-            #timerfunc()
-            if(HStep != 0):
-                HPulse += HStep
-                if(HPulse >= 179): 
-                    HPulse = 179
-                elif(HPulse <= 1):
-                    HPulse = 1
-                pwm.setRotationAngle(1, HPulse)
-                # print("          HPulse=", HPulse)   
-            
-            elif(VStep != 0):
-                VPulse += VStep
-                if(VPulse >= 80): 
-                    VPulse = 80
-                elif(VPulse <= 1):
-                    VPulse = 1
-                pwm.setRotationAngle(0, VPulse)
-                # print("          HPulse=", VPulse)
-             
+def f():
+    pwm.exit_PCA9685()
+    GPIO.cleanup()
+    print "\nProgram end"
+    sys.exit()
+    
+    
 def timerfunc():  
     global t        #Notice: use global variable!
     t = threading.Timer(0.02, timerfunc)
     t.start()
-try:  
+
+try:
+    signal.signal(signal.SIGINT, exit)
+    signal.signal(signal.SIGTERM, f)
     t = threading.Timer(0.02, timerfunc)
     t.setDaemon(True)
     t.start()
@@ -102,17 +124,39 @@ try:
     print 'server is running....'  
     server = SocketServer.ThreadingTCPServer(addr,Servers)
     time.sleep(0.1) 
-    thread.start_new_thread(server.serve_forever, ()) 
-    thread.start_new_thread(camera.camera())
-    #server.serve_forever()
+    t1 = threading.Thread(target = server.serve_forever) 
+    t2 = threading.Thread(target = camera.camera)
+    t1.setDaemon(True)
+    t2.setDaemon(True)
+    t2.start()
+    t1.start()
 
-    #os.system('./start.sh') 
+    while True:
+        if(HStep != 0):
+            HPulse += HStep
+            if(HPulse >= 180): 
+                HPulse = 180
+                print ("\tRotation angle boundary warning!!!!")
+            elif(HPulse <= 1):
+                HPulse = 1
+                print ("\tRotation angle boundary warning!!!!")
+            pwm.setRotationAngle(1, HPulse)
+            print("\tHPulse=%d"%HPulse)   
 
-    while True: 
-        time.sleep(1) 
+        elif(VStep != 0):
+            VPulse += VStep
+            if(VPulse >= 110): 
+                VPulse = 110
+                print ("\tRotation angle boundary warning!!!!")
+            elif(VPulse <= 1):
+                VPulse = 1
+                print ("\tRotation angle boundary warning!!!!")
+            pwm.setRotationAngle(0, VPulse)
+            print("\tVPulse=%d"%VPulse)
+        time.sleep(0.05) 
 
 except:
     pwm.exit_PCA9685()
-    GPIO.cleanup()
+    #GPIO.cleanup()
     print "\nProgram end"
     exit()

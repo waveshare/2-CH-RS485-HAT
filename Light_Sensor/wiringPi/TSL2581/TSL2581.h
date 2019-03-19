@@ -120,3 +120,4 @@ UDOUBLE calculateLux(UWORD iGain, UWORD tIntCycles);
 
 #endif
 
+

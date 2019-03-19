@@ -24,7 +24,7 @@ void Init_TSL2581(void)
 	IIC_Write(COMMAND_CMD | TIMING, INTEGRATIONTIME_400MS);  //400MS
 	IIC_Write(COMMAND_CMD | CONTROL, ADC_EN | CONTROL_POWERON); //Every ADC cycle generates interrupt
 	IIC_Write(COMMAND_CMD | INTERRUPT, INTR_INTER_MODE);	//TEST MODE
-	IIC_Write(COMMAND_CMD | ANALOG, GAIN_1X);				//GAIN = 16
+	IIC_Write(COMMAND_CMD | ANALOG, GAIN_16X);				//GAIN = 16
 }
 
 /**********************************************************************************************

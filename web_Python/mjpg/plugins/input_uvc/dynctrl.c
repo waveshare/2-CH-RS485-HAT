@@ -198,7 +198,7 @@ int initDynCtrls(int fd)
             if(errno != EEXIST)
                 perror("UVCIOC_CTRL_ADD - Error");
             else
-                perror("Control exists");
+               perror("Control exists");
         }
     }
     /* after adding the controls, add the mapping now */
@@ -206,9 +206,9 @@ int initDynCtrls(int fd)
         fprintf(stderr, "mapping control for %s\n", xu_mappings[i].name);
         if((err = xioctl(fd, UVCIOC_CTRL_MAP, &xu_mappings[i])) < 0) {
             if(errno != EEXIST)
-                perror("UVCIOC_CTRL_MAP - Error");
+               perror("UVCIOC_CTRL_MAP - Error");
             else
-                perror("Mapping exists");
+               perror("Mapping exists");
         }
     }
     return 0;

@@ -62,7 +62,6 @@ void IIC_Write(UBYTE add_, UBYTE data_)
 	 wiringPiI2CWriteReg8(fd, add_, data_);
 }
 
-
 UBYTE IIC_Read(UBYTE add_)
 {
 	return wiringPiI2CReadReg8(fd, add_);

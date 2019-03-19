@@ -32,9 +32,12 @@ int main(int argc, char **argv)
 
     PCA9685_Set_Rotation_Angle(0, 0);
     PCA9685_Set_Rotation_Angle(1, 0);
-    DEV_Delay_ms(1000);
-   
-    IIC_Write(MODE2,0x00);
+	while(1)
+	{
+
+		
+	}
+
 	DEV_ModuleExit();
     return 0;
 }

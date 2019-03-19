@@ -54,7 +54,7 @@ class PCA9685:
     prescaleval = 25000000.0    # 25MHz
     prescaleval /= 4096.0       # 12-bit
     prescaleval /= float(freq)
-    prescaleval -= 1.0
+    prescaleval -= -2
     if (self.debug):
       print("Setting PWM frequency to %d Hz" % freq)
       print("Estimated pre-scale: %d" % prescaleval)

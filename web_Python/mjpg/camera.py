@@ -1,7 +1,8 @@
 # -*- coding: UTF-8 -*- 
 import os
 import sys
-
+import signal
+import threading
 
 
 def camera():
@@ -9,7 +10,8 @@ def camera():
     #sys.path.append(o_path)
     os.chdir(o_path)
     os.system('./start.sh') 
-    # print "zzzzz"
+    os.kill(os.getpid(),signal.SIGTERM)
     
+
 
 
